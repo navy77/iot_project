@@ -3,7 +3,7 @@
 class MyEspUsbHostKeybord : public EspUsbHostKeybord {
   public:
 
-    char hidTable[13][2] = {
+    char hidTable[59][2] = {
       {86, '-'}, {87, '+'}, {89, '1'}, {90, '2'}, {91, '3'}, {92, '4'}, {93, '5'}, {94, '6'}, {95, '7'}, {96, '8'}, {97, '9'}, {98, '0'}, {99, '.'},
       {4,'A'} ,{5,'B'}, {6,'C'}, {7,'D'}, {8,'E'}, {9,'F'}, {10,'G'}, {11,'H'}, {12,'I'}, {13,'J'}, {14,'K'}, {15,'L'}, {16,'M'}, {17,'N'}, {18,'O'},
       {19,'P'}, {20,'Q'}, {21,'R'}, {22,'S'}, {23,'T'}, {24,'U'}, {25,'V'}, {26,'W'}, {27,'X'}, {28,'Y'}, {29,'Z'}     
@@ -30,7 +30,11 @@ class MyEspUsbHostKeybord : public EspUsbHostKeybord {
           }
         }else{
           Serial.println(data_list);
+          neopixelWrite(RGB_BUILTIN,0,0,255); // Blue
           count = 0;
+          delay(500);
+          neopixelWrite(RGB_BUILTIN,0,0,0);
+
         }
       }
     }
@@ -41,7 +45,12 @@ MyEspUsbHostKeybord usbHost;
 
 void setup() {
   Serial.begin(115200);
+  neopixelWrite(RGB_BUILTIN,255,0,0); // Red
+  delay(2000);
   usbHost.begin();
+
+  neopixelWrite(RGB_BUILTIN,0,255,0); // Green
+  delay(2000);
 }
 
 void loop() {
