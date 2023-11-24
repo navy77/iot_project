@@ -1,3 +1,4 @@
+#include "HardwareSerial.h"
 #ifndef __EspUsbHostKeybord_H__
 #define __EspUsbHostKeybord_H__
 

@@ -1,3 +1,4 @@
+#include "HardwareSerial.h"
 #include "EspUsbHost.h"
 
 void EspUsbHost::begin(void) {
