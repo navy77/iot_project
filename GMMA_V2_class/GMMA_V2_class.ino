@@ -4,6 +4,7 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
+// uint16_t got_data[150];
 
 Modbus slave(1, Serial1, 0);
 WiFiClient espClient;
@@ -12,6 +13,7 @@ String status;
 String prv_status;
 String alarm_;
 String prv_alarm;
+
 void setup_wifi() {
 
   delay(10);
@@ -70,8 +72,6 @@ void reconnect() {
 void setup() {
 
   std::vector<std::vector<String>> def_tb;
-  // std::vector<std::vector<String>> data_tb;
-  std::vector<std::vector<String>> alarm_tb;
 
   Serial.begin(115200);
   setup_wifi();
@@ -88,17 +88,20 @@ void setup() {
   delay(1000);
 
   slave.start();  // start modbus
+  
 }
 
 void loop() {
   if (!client.connected()) {
     reconnect();
   }
+  slave.poll(got_data, num_got_data);
 }
 
 void modbus_Task(void *pvParam) {  // cytime = 0.2-1 ms
+  
   while (1) {
-    slave.poll(got_data, num_got_data);
+    // Serial.println(got_data[0]);
     //This loop ct = 0.5 ms
     //record raw data to table
     for (int i = 0; i < sizeof(def_tb) / sizeof(def_tb[0]); i++) {
@@ -114,7 +117,7 @@ void modbus_Task(void *pvParam) {  // cytime = 0.2-1 ms
       }
     }
 
-    vTaskDelay(pdMS_TO_TICKS(100));
+    vTaskDelay(pdMS_TO_TICKS(itr_modbus));
   }
 }
 
@@ -152,7 +155,7 @@ void func1_Task(void *pvParam) {  // type data -->1
       }
     }
 
-    vTaskDelay(pdMS_TO_TICKS(2000));
+    vTaskDelay(pdMS_TO_TICKS(itr_fnc_1));
   }
 }
 
@@ -163,6 +166,7 @@ void func2_Task(void *pvParam) {  // status
     double bit_data[2];
     uint8_t coil_no = 0;
     //Convert & check data
+    Serial.println(got_data[0]);
     for (int i = 0; i < 2; i++) {
       if (got_data[i] >= 0) {
         bit_data[i] = log2(got_data[i]);
@@ -173,7 +177,7 @@ void func2_Task(void *pvParam) {  // status
         }
       }
     }
-
+    // Serial.println(bit_data[0]);
     if (bit_data[0] >= 0 and bit_data[1] >= 0) {
       check_data[0] = false;
       check_data[1] = false;
@@ -209,7 +213,7 @@ void func2_Task(void *pvParam) {  // status
         prv_status = status;
       }
     }
-    vTaskDelay(pdMS_TO_TICKS(1000));
+    vTaskDelay(pdMS_TO_TICKS(itr_fnc_2));
   }
 }
 
@@ -248,8 +252,8 @@ void func3_Task(void *pvParam) {  // alarm
       StaticJsonDocument<300> json_3;  // size = 30*topic [avg]
       for (int i = 0; i < sizeof(def_tb) / sizeof(def_tb[0]); i++) {
         if (def_tb[i][1].toInt() == coil_no) {
-          alarm_ = def_tb[i][0].toInt();
-          json_3["alarm_status"] = alarm_.toInt();
+          alarm_ = def_tb[i][0];
+          json_3["alarm_status"] = alarm_;
         }
       }
       // Get datetime
@@ -267,6 +271,6 @@ void func3_Task(void *pvParam) {  // alarm
         prv_alarm = alarm_;
       }
     }
-    vTaskDelay(pdMS_TO_TICKS(1000));
+    vTaskDelay(pdMS_TO_TICKS(itr_fnc_3));
   }
 }
