@@ -7,32 +7,22 @@ const char* password = "mic@admin";
 
 // #### MQTT Config  #### //
 
-const char* mqtt_server = "192.168.1.5"; 
+const char* mqtt_server = "192.168.1.111"; 
 const char* topic_pub_1 = "simple_1";
 const char* topic_pub_2 = "simple_2";
 const char* topic_pub_3 = "simple_3";
 const char* topic_sub_1 = "sub_1";
 
 // #### Modbus Address Config  #### //
-const uint8_t itr_modbus = 100;  // ms
-const uint8_t itr_fnc_1 = 5000;  // ms
-const uint8_t itr_fnc_2 = 2000;  // ms
-const uint8_t itr_fnc_3 = 2000;  // ms
-const uint8_t num_got_data = 100;
+const uint16_t itr_modbus = 100;  // ms
+const uint16_t itr_fnc_1 = 5000;  // ms
+const uint16_t itr_fnc_2 = 2000;  // ms
+const uint16_t itr_fnc_3 = 2000;  // ms
+
+const uint8_t num_got_data = 110;
 uint16_t got_data[num_got_data];
 
-String alarm_tb[][4]{
-  { "1", "32", "", "" },   //alarm1
-  { "2", "33", "", "" },   //alarm2
-  { "3", "34", "", "" },   //alarm3
-  { "4", "35", "", "" },   //alarm4
-  { "5", "36", "", "" },   //alarm5
-  { "6", "37", "", "" },   //alarm6
-  { "7", "38", "", "" },   //alarm7
-  { "8", "39", "", "" },   //alarm8
-  { "9", "40", "", "" },   //alarm9
-  { "40", "71", "", "" },  //alarm40
-};
+
 String def_tb[][5] = {
   // name||address||type||value||prv_value
   // type for separate detail of data
