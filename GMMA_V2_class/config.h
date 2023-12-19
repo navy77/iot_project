@@ -11,16 +11,31 @@ const char* mqtt_server = "192.168.1.111";
 const char* topic_pub_1 = "simple_1";
 const char* topic_pub_2 = "simple_2";
 const char* topic_pub_3 = "simple_3";
+const char* topic_esp_health = "esp_health";
 const char* topic_sub_1 = "sub_1";
 
 // #### Modbus Address Config  #### //
 const uint16_t itr_modbus = 100;  // ms
-const uint16_t itr_fnc_1 = 5000;  // ms
-const uint16_t itr_fnc_2 = 2000;  // ms
-const uint16_t itr_fnc_3 = 2000;  // ms
+const uint16_t itr_fnc_1 = 1000;  // ms
+const uint16_t itr_fnc_2 = 1000;  // ms
+const uint16_t itr_fnc_3 = 1000;  // ms
+const uint16_t itr_esp = 20000;  // ms
 
 const uint8_t num_got_data = 110;
 uint16_t got_data[num_got_data];
+float init_heap;
+String status;
+String prv_status;
+String alarm_;
+String prv_alarm;
+uint16_t prv_time = 0;
+uint16_t heap_cnt1,heap_cnt2,heap_cnt3;
+uint16_t ct_fn1,ct_fn2,ct_fn3,ct_read;
+uint16_t ct_read_cnt,ct_fn1_cnt,ct_fn2_cnt,ct_fn3_cnt;
+uint16_t ct_read_ = 220;
+uint16_t ct_fn1_ = 3500;
+uint16_t ct_fn2_ = 1800;
+uint16_t ct_fn3_ = 2300;
 
 
 String def_tb[][5] = {
@@ -51,16 +66,19 @@ String def_tb[][5] = {
   { "hh", "83", "0", "", "" },
   { "min", "84", "0", "", "" },
   { "sec", "85", "0", "", "" },
-  { "ttl_a", "90", "3", "", "" },
-  { "ttl_b", "91", "3", "", "" },
-  { "ttl_c", "92", "3", "", "" },
-  { "yeild_a", "93", "3", "", "" },
-  { "yeild_b", "94", "3", "", "" },
-  { "yeild_c", "95", "3", "", "" },
-  { "tray_1", "96", "3", "", "" },
-  { "tray_2", "97", "3", "", "" },
-  { "tray_3", "98", "3", "", "" },
-  { "tray_main", "99", "3", "", "" }
+  { "size_1", "86", "4", "", "" },
+  { "size_2", "87", "4", "", "" },
+  { "ttl_sh", "90", "3", "", "" },
+  { "ttl_a", "91", "3", "", "" },
+  { "ttl_b", "92", "3", "", "" },
+  { "ttl_c", "93", "3", "", "" },
+  { "yeild_a", "94", "3", "", "" },
+  { "yeild_b", "95", "3", "", "" },
+  { "yeild_c", "96", "3", "", "" },
+  { "tray_1", "97", "3", "", "" },
+  { "tray_2", "98", "3", "", "" },
+  { "tray_3", "99", "3", "", "" },
+  { "tray_main", "100", "3", "", "" },
 };
 
 
@@ -69,5 +87,6 @@ TaskHandle_t Read_modbus = NULL;
 TaskHandle_t Func_1 = NULL;  //data
 TaskHandle_t Func_2 = NULL;  // status
 TaskHandle_t Func_3 = NULL;  // alarm
+TaskHandle_t ESP_status = NULL;
 
 #endif
