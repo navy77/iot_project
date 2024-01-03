@@ -1,12 +1,17 @@
+#include "HardwareSerial.h"
 #include "esp_system.h"
 #include "MicMMS.h"
 #include "config.h"
-MicMMS::MicMMS(const char* ssid, const char* password, const char* mqtt_server, int mqtt_port, int slaveId, HardwareSerial& serialPort)
-  : wifiClient(), mqttClient(wifiClient), slaveId(slaveId), serialPort(serialPort), modbus(slaveId, serialPort, 0) {
-  this->ssid = ssid;
-  this->password = password;
-  this->mqtt_server = mqtt_server;
-  this->mqtt_port = mqtt_port;
+MicMMS::MicMMS(const char* ssid, const char* password, const char* mqtt_server, int mqtt_port, const char* mc_no, int slaveId, HardwareSerial& serialPort,const char* ip_address, const char* gateway_address, const char* subnet_mask)
+  : wifiClient(), mqttClient(wifiClient),ssid(ssid),password(password),mqtt_server(mqtt_server),mqtt_port(mqtt_port),mc_no(mc_no), slaveId(slaveId), serialPort(serialPort), modbus(slaveId, serialPort, 0) {
+  // this->ssid = ssid;
+  // this->password = password;
+  // this->mqtt_server = mqtt_server;
+  // this->mqtt_port = mqtt_port;
+  // this->mc_no = mc_no;
+  ip.fromString(ip_address);
+  gateway.fromString(gateway_address);
+  subnet.fromString(subnet_mask);
 }
 
 void MicMMS::init() {
@@ -16,19 +21,21 @@ void MicMMS::init() {
 
   Serial.begin(115200);
   Serial1.begin(115200);
-
-
+  WiFi.config(ip, gateway,subnet);
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
     Serial.println("Connecting to WiFi...");
   }
-  Serial.println("Connected to WiFi");
+  Serial.println("Connected to WiFi");\
+  Serial.println(WiFi.localIP());
   mqttClient.setServer(mqtt_server, mqtt_port);
+
   digitalWrite(2, HIGH);
   init_heap = esp_get_free_heap_size();
   modbus.start();
 }
+
 void MicMMS::reconnect() {
   while (!mqttClient.connected()) {
     Serial.println("Attempting MQTT connection...");
@@ -42,7 +49,7 @@ void MicMMS::reconnect() {
   }
 }
 
-void MicMMS::publishMessage(const char* topic, const char* message) {
+void MicMMS::publishMessage(char* topic, const char* message) {
   if (!mqttClient.connected()) {
     reconnect();
   }
@@ -87,6 +94,12 @@ void MicMMS::modbus_Task(void* pvParam) {
 
 void MicMMS::func1_Task(void* pvParam) {
   MicMMS* instance = (MicMMS*)pvParam;
+  MicMMS* mcNo = (MicMMS*)(pvParam);
+
+  char topic_pub[30];
+  strcpy(topic_pub, mcNo->mc_no);
+  strcat(topic_pub, topic_pub_1);
+
   while (1) {
     unsigned long long int start = micros();
     bool change_1 = false;
@@ -117,8 +130,8 @@ void MicMMS::func1_Task(void* pvParam) {
       json_1["rssi"] = (float)WiFi.RSSI();
       String json_topic1;
       serializeJson(json_1, json_topic1);
-      // instance->publishMessage("simple_2", "222");
-      instance->publishMessage(topic_pub_1, json_topic1.c_str());
+      // instance->publishMessage(mcNo->mc_no, json_topic1.c_str());
+      instance->publishMessage(topic_pub, json_topic1.c_str());
       for (int k = 0; k < sizeof(def_tb) / sizeof(def_tb[0]); k++) {
         if (def_tb[k][2] == "3") {
           def_tb[k][4] = def_tb[k][3];
@@ -135,6 +148,11 @@ void MicMMS::func1_Task(void* pvParam) {
 
 void MicMMS::func2_Task(void* pvParam) {
   MicMMS* instance = (MicMMS*)pvParam;
+  MicMMS* mcNo = (MicMMS*)(pvParam);
+
+  char topic_pub[30];
+  strcpy(topic_pub, mcNo->mc_no);
+  strcat(topic_pub, topic_pub_2);
   while (1) {
     unsigned long long int start = micros();
     bool ready_state = false;
@@ -183,7 +201,7 @@ void MicMMS::func2_Task(void* pvParam) {
       if (status != prv_status) {
         String json_topic2;
         serializeJson(json_2, json_topic2);
-        instance->publishMessage(topic_pub_2, json_topic2.c_str());
+        instance->publishMessage(topic_pub, json_topic2.c_str());
         ready_state = false;
         prv_status = status;
         ct_fn2 = micros() - start;
@@ -198,6 +216,11 @@ void MicMMS::func2_Task(void* pvParam) {
 
 void MicMMS::func3_Task(void* pvParam) {
   MicMMS* instance = (MicMMS*)pvParam;
+  MicMMS* mcNo = (MicMMS*)(pvParam);
+
+  char topic_pub[30];
+  strcpy(topic_pub, mcNo->mc_no);
+  strcat(topic_pub, topic_pub_3);
   while (1) {
     unsigned long long int start = micros();
     bool ready_state = false;
@@ -247,7 +270,7 @@ void MicMMS::func3_Task(void* pvParam) {
       if (alarm_ != prv_alarm) {
         String json_topic3;
         serializeJson(json_3, json_topic3);
-        instance->publishMessage(topic_pub_3, json_topic3.c_str());
+        instance->publishMessage(topic_pub, json_topic3.c_str());
         ready_state = false;
         prv_alarm = alarm_;
         ct_fn3 = micros() - start;
@@ -262,6 +285,11 @@ void MicMMS::func3_Task(void* pvParam) {
 
 void MicMMS::esp_Task(void* pvParam) {  //ESP status
   MicMMS* instance = (MicMMS*)pvParam;
+  MicMMS* mcNo = (MicMMS*)(pvParam);
+
+  char topic_pub[30];
+  strcpy(topic_pub, mcNo->mc_no);
+  strcat(topic_pub, topic_esp_health);
   while (1) {
     StaticJsonDocument<200> json_4;
     String json_topic4;
@@ -305,7 +333,7 @@ void MicMMS::esp_Task(void* pvParam) {  //ESP status
       json_4["cpu_fn3"] = ct_fn3_cnt;
 
       serializeJson(json_4, json_topic4);
-      instance->publishMessage(topic_esp_health, json_topic4.c_str());
+      instance->publishMessage(topic_pub, json_topic4.c_str());
       prv_time = millis();
       heap_cnt1 = 0;
       heap_cnt2 = 0;
