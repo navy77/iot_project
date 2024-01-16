@@ -65,10 +65,10 @@ void MicMMS::run() {
 }
 
 void MicMMS::start() {
-  xTaskCreatePinnedToCore(modbus_Task, "Task0", 10000, this, 1, NULL, 0);
-  xTaskCreatePinnedToCore(func1_Task, "Task1", 10000, this, 1, NULL, 0);
-  xTaskCreatePinnedToCore(func2_Task, "Task2", 10000, this, 1, NULL, 0);
-  xTaskCreatePinnedToCore(func3_Task, "Task3", 10000, this, 1, NULL, 0);
+  xTaskCreatePinnedToCore(modbus_Task, "Task0", 10000, this, 5, NULL, 0);
+  xTaskCreatePinnedToCore(func1_Task, "Task1", 10000, this, 4, NULL, 0);
+  xTaskCreatePinnedToCore(func2_Task, "Task2", 10000, this, 3, NULL, 0);
+  xTaskCreatePinnedToCore(func3_Task, "Task3", 10000, this, 2, NULL, 0);
   xTaskCreatePinnedToCore(esp_Task, "Task4", 10000, this, 1, NULL, 0);
 }
 void MicMMS::modbus_Task(void* pvParam) {
