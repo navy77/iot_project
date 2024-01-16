@@ -1,11 +1,18 @@
 #ifndef CONFIG_H
 #define CONFIG_H
+
+// #### WIFI Config  #### //
+// const char* ssid = "MIC_IIOT_2.4GHz";  //MIC_IIOT_2.4GHz MIC_IIOT Pwty_2.4G
+// const char* password = "mic@admin";
+
 // #### MQTT Config  #### //
 
- char* topic_pub_1 = "/data";
+// const char* mqtt_server = "192.168.1.111"; 
+ char* topic_pub_1 = "/data";  // ball/insp/A001/data
  char* topic_pub_2 = "/status";
  char* topic_pub_3 = "/alarm";
  char* topic_esp_health = "/esp_health";
+//  char* topic_sub_1 = "sub_1";
 
 // #### Modbus Address Config  #### //
 const uint16_t itr_modbus = 100;  // ms
