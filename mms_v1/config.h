@@ -1,10 +1,6 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-// #### WIFI Config  #### //
-// const char* ssid = "MIC_IIOT_2.4GHz";  //MIC_IIOT_2.4GHz MIC_IIOT Pwty_2.4G
-// const char* password = "mic@admin";
-
 // #### MQTT Config  #### //
 
 // const char* mqtt_server = "192.168.1.111"; 
