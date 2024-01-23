@@ -1,14 +1,13 @@
+// Project name : MMS
+// Version : 1.0
+// Author : MIC
+
 #include "HardwareSerial.h"
 #include "esp_system.h"
 #include "MicMMS.h"
 #include "config.h"
 MicMMS::MicMMS(const char* ssid, const char* password, const char* mqtt_server, int mqtt_port, const char* mc_no, int slaveId, HardwareSerial& serialPort,const char* ip_address, const char* gateway_address, const char* subnet_mask)
   : wifiClient(), mqttClient(wifiClient),ssid(ssid),password(password),mqtt_server(mqtt_server),mqtt_port(mqtt_port),mc_no(mc_no), slaveId(slaveId), serialPort(serialPort), modbus(slaveId, serialPort, 0) {
-  // this->ssid = ssid;
-  // this->password = password;
-  // this->mqtt_server = mqtt_server;
-  // this->mqtt_port = mqtt_port;
-  // this->mc_no = mc_no;
   ip.fromString(ip_address);
   gateway.fromString(gateway_address);
   subnet.fromString(subnet_mask);
@@ -71,14 +70,15 @@ void MicMMS::start() {
   xTaskCreatePinnedToCore(func3_Task, "Task3", 10000, this, 2, NULL, 0);
   xTaskCreatePinnedToCore(esp_Task, "Task4", 10000, this, 1, NULL, 0);
 }
+
 void MicMMS::modbus_Task(void* pvParam) {
   MicMMS* instance = (MicMMS*)pvParam;
   while (1) {
-    //record raw data to table
-    unsigned long long int start = micros();
+    //record raw data to table   // 
+    unsigned long long int start = micros(); 
     for (int i = 0; i < sizeof(def_tb) / sizeof(def_tb[0]); i++) {
       if (def_tb[i][2] == "0" || def_tb[i][2] == "3" || def_tb[i][2] == "4") {
-        def_tb[i][3] = got_data[(def_tb[i][1].toInt()) - 1];
+        def_tb[i][3] = got_data[(def_tb[i][1].toInt()) - 1]; // def_tb[0][3] = got[0]
       }
     }
     // clean data yy-->yyyy
@@ -130,7 +130,6 @@ void MicMMS::func1_Task(void* pvParam) {
       json_1["rssi"] = (float)WiFi.RSSI();
       String json_topic1;
       serializeJson(json_1, json_topic1);
-      // instance->publishMessage(mcNo->mc_no, json_topic1.c_str());
       instance->publishMessage(topic_pub, json_topic1.c_str());
       for (int k = 0; k < sizeof(def_tb) / sizeof(def_tb[0]); k++) {
         if (def_tb[k][2] == "3") {
@@ -160,13 +159,13 @@ void MicMMS::func2_Task(void* pvParam) {
     double bit_data[2];
     uint8_t coil_no = 0;
     //Convert & check data
-    for (int i = 0; i < 2; i++) {
-      if (got_data[i] >= 0) {
+    for (int i = 0; i < 2; i++) { 
+      if (got_data[i] >= 0) { 
         bit_data[i] = log2(got_data[i]);
-        if (bit_data[i] == round(bit_data[i])) {
+        if (bit_data[i] == round(bit_data[i])) { 
           check_data[i] = true;
         } else {
-          check_data[i] = false;
+          check_data[i] = false; 
         }
       }
     }
@@ -182,7 +181,6 @@ void MicMMS::func2_Task(void* pvParam) {
         ready_state = true;
       }
     }
-
     if (coil_no > 0 and ready_state == true) {
       StaticJsonDocument<300> json_2;  // size = 30*topic [avg]
       for (int i = 0; i < sizeof(def_tb) / sizeof(def_tb[0]); i++) {
