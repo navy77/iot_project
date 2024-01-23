@@ -1,3 +1,8 @@
+// Project name : MMS
+// Version : 1.0
+// Author : MIC
+// Modify date: 22 Jan 2024
+
 #ifndef MICMMS_H
 #define MICMMS_H
 
