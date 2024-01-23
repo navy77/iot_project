@@ -1,0 +1,9 @@
+#ModbusRtu
+https://github.com/smarmengol/Modbus-Master-Slave-for-Arduino/tree/master
+
+#ArduinoJson v.6.21.5
+https://github.com/bblanchon/ArduinoJson
+https://arduinojson.org/?utm_source=meta&utm_medium=library.properties
+
+#mqtt
+https://github.com/knolleary/pubsubclient/
