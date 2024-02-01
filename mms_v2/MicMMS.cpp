@@ -237,9 +237,9 @@ void MicMMS::func3_Task(void* pvParam) {
     }
     // publish data
     if (alarm_ != prv_alarm) {
-      String json_topic2;
-      serializeJson(json_3, json_topic2);
-      instance->publishMessage(topic_pub, json_topic2.c_str());
+      String json_topic3;
+      serializeJson(json_3, json_topic3);
+      instance->publishMessage(topic_pub, json_topic3.c_str());
 
       prv_alarm = alarm_;
       ct_fn3 = micros() - start;
